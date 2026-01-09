@@ -151,9 +151,10 @@ jobs:
     - name: Deploy to development
       run: |
         echo "Deploying to development environment..."
-        echo "Image: ${{ needs.build-image.outputs.image-tag }}"
+        echo "Available images:"
+        echo "${{ needs.build-image.outputs.image-tag }}" | tr ' ' '\n'
         # 这里添加实际的部署脚本
-        # 例如：kubectl set image deployment/ai-model-proxy ai-model-proxy=${{ needs.build-image.outputs.image-tag }}
+        # 例如：kubectl set image deployment/ai-model-proxy ai-model-proxy=$(echo "${{ needs.build-image.outputs.image-tag }}" | head -n1)
 
   # 部署到生产环境
   deploy-prod:
@@ -166,9 +167,10 @@ jobs:
     - name: Deploy to production
       run: |
         echo "Deploying to production environment..."
-        echo "Image: ${{ needs.build-image.outputs.image-tag }}"
+        echo "Available images:"
+        echo "${{ needs.build-image.outputs.image-tag }}" | tr ' ' '\n'
         # 这里添加实际的部署脚本
-        # 例如：kubectl set image deployment/ai-model-proxy ai-model-proxy=${{ needs.build-image.outputs.image-tag }}
+        # 例如：kubectl set image deployment/ai-model-proxy ai-model-proxy=$(echo "${{ needs.build-image.outputs.image-tag }}" | head -n1)
 
   # 性能测试
   performance-test:
