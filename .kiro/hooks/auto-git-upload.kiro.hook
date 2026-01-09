@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Auto Git Upload",
+  "description": "Automatically uploads code to git repository when tests pass",
+  "version": "1",
+  "when": {
+    "type": "agentStop"
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "git add . && git commit -m \"Auto commit: tests passed\" && git push"
+  }
+}

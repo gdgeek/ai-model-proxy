@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Pre-upload Test & Lint Check",
+  "description": "Automatically runs tests and linting checmaks before uploading code to ensure quality standards are met",
+  "version": "1",
+  "when": {
+    "type": "promptSubmit"
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "npm test && npm run lint"
+  }
+}
