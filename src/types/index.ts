@@ -1,3 +1,4 @@
+/// <reference types="express" />
 // 基础类型定义
 import { Request } from 'express';
 

@@ -20,5 +20,8 @@ module.exports = {
     es6: true,
     jest: true,
   },
+  globals: {
+    Express: 'readonly',
+  },
   ignorePatterns: ['dist/', 'node_modules/', '*.js'],
 };

@@ -1,3 +1,4 @@
+/// <reference types="express" />
 import { Request } from 'express';
 import { ModelGenerationRequest } from './index';
 

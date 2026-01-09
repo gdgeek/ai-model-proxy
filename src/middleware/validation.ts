@@ -1,8 +1,12 @@
+/// <reference types="express" />
 import { Request, Response, NextFunction } from 'express';
 import Joi from 'joi';
-import multer from 'multer';
+import multer, { FileFilterCallback } from 'multer';
 import { config } from '../config';
 import { ValidationError, UnsupportedMediaTypeError, PayloadTooLargeError } from '../types/errors';
+
+// 定义文件类型
+type MulterFile = Express.Multer.File;
 
 // Joi验证模式
 const modelGenerationSchema = Joi.object({
@@ -32,7 +36,7 @@ const IMAGE_MIME_TYPE_EXTENSIONS: { [key: string]: string } = {
 // Multer配置用于文件上传
 const storage = multer.memoryStorage();
 
-const fileFilter = (_req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback): void => {
+const fileFilter = (_req: Request, file: MulterFile, cb: FileFilterCallback): void => {
   // 检查文件类型
   if (!ALLOWED_IMAGE_TYPES.has(file.mimetype)) {
     const error = new UnsupportedMediaTypeError(
@@ -127,7 +131,7 @@ export const validateToken = (token: string): boolean => {
 };
 
 // 验证图片格式
-export const validateImageFormat = (file: Express.Multer.File): boolean => {
+export const validateImageFormat = (file: MulterFile): boolean => {
   return ALLOWED_IMAGE_TYPES.has(file.mimetype);
 };
 
@@ -196,7 +200,7 @@ export const validateTextInput = (text: string): boolean => {
 };
 
 // 验证图片文件
-export const validateImageFile = (file: Express.Multer.File): boolean => {
+export const validateImageFile = (file: MulterFile): boolean => {
   if (!file) {
     return false;
   }
