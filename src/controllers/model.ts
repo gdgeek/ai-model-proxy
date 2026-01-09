@@ -62,7 +62,9 @@ export class ModelController {
         jobId: jobResponse.jobId,
         status: jobResponse.status,
         message: jobResponse.message,
-        ...(jobResponse.estimatedTime !== undefined && { estimatedTime: jobResponse.estimatedTime }),
+        ...(jobResponse.estimatedTime !== undefined && {
+          estimatedTime: jobResponse.estimatedTime,
+        }),
       };
 
       logger.info('Model generation request created:', {
@@ -108,25 +110,27 @@ export class ModelController {
         jobId: jobStatus['jobId'],
         status: jobStatus.status,
         message: this.getStatusMessage(jobStatus.status),
-        ...(jobStatus.status === 'completed' && jobStatus.cosUrl && {
-          result: {
-            modelUrl: jobStatus.cosUrl,
-            metadata: {
-              fileSize: 0, // 实际实现中应该从文件元数据获取
-              format: 'obj',
-              generationTime: jobStatus.completedAt 
-                ? jobStatus.completedAt.getTime() - jobStatus.createdAt.getTime()
-                : 0,
+        ...(jobStatus.status === 'completed' &&
+          jobStatus.cosUrl && {
+            result: {
+              modelUrl: jobStatus.cosUrl,
+              metadata: {
+                fileSize: 0, // 实际实现中应该从文件元数据获取
+                format: 'obj',
+                generationTime: jobStatus.completedAt
+                  ? jobStatus.completedAt.getTime() - jobStatus.createdAt.getTime()
+                  : 0,
+              },
             },
-          },
-        }),
-        ...(jobStatus.status === 'failed' && jobStatus.error && {
-          error: {
-            code: jobStatus.error.code,
-            message: jobStatus.error.message,
-            details: jobStatus.error.details,
-          },
-        }),
+          }),
+        ...(jobStatus.status === 'failed' &&
+          jobStatus.error && {
+            error: {
+              code: jobStatus.error.code,
+              message: jobStatus.error.message,
+              details: jobStatus.error.details,
+            },
+          }),
       };
 
       logger.debug('Model status retrieved:', {
@@ -194,7 +198,7 @@ export class ModelController {
           metadata: {
             fileSize: 0, // 实际实现中应该从文件元数据获取
             format: 'obj',
-            generationTime: jobStatus.completedAt 
+            generationTime: jobStatus.completedAt
               ? jobStatus.completedAt.getTime() - jobStatus.createdAt.getTime()
               : 0,
           },

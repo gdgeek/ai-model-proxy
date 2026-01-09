@@ -223,10 +223,7 @@ const options: swaggerJSDoc.Options = {
                   example: 'req-123456',
                 },
                 details: {
-                  oneOf: [
-                    { type: 'string' },
-                    { type: 'array', items: { type: 'object' } },
-                  ],
+                  oneOf: [{ type: 'string' }, { type: 'array', items: { type: 'object' } }],
                   description: '错误详情',
                 },
               },

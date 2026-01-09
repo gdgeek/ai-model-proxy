@@ -7,7 +7,7 @@ import { ExternalServiceError, NotFoundError, AppError } from '../types/errors';
 
 export class ModelGenerationService {
   private jobs: Map<string, JobStatus> = new Map();
-  private pollingIntervals: Map<string, NodeJS.Timeout> = new Map();
+  private pollingIntervals: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   /**
    * 提交模型生成请求
@@ -15,7 +15,7 @@ export class ModelGenerationService {
   async submitGenerationRequest(input: ModelInput, token: string): Promise<JobResponse> {
     try {
       const jobId = uuidv4();
-      
+
       logger.info('Submitting model generation request:', {
         jobId,
         type: input.type,
@@ -39,7 +39,7 @@ export class ModelGenerationService {
         data: input.data,
         options: {
           quality: 'medium', // 默认质量
-          format: 'obj',     // 默认格式
+          format: 'obj', // 默认格式
         },
       };
 
@@ -63,7 +63,7 @@ export class ModelGenerationService {
    */
   async pollJobStatus(jobId: string): Promise<JobStatus> {
     const jobStatus = this.jobs.get(jobId);
-    
+
     if (!jobStatus) {
       throw new NotFoundError(`作业 ${jobId} 未找到`);
     }
@@ -76,13 +76,13 @@ export class ModelGenerationService {
    */
   async processModelGeneration(input: ModelInput, token: string): Promise<ModelResult> {
     const response = await this.submitGenerationRequest(input, token);
-    
+
     // 等待作业完成
     return new Promise((resolve, reject) => {
       const checkStatus = async () => {
         try {
           const status = await this.pollJobStatus(response.jobId);
-          
+
           if (status.status === 'completed' && status.cosUrl) {
             resolve({
               jobId: response.jobId,
@@ -112,7 +112,11 @@ export class ModelGenerationService {
   /**
    * 异步处理模型生成
    */
-  private async processModelGenerationAsync(jobId: string, input: TripoInput, token: string): Promise<void> {
+  private async processModelGenerationAsync(
+    jobId: string,
+    input: TripoInput,
+    token: string
+  ): Promise<void> {
     try {
       // 更新状态为处理中
       this.updateJobStatus(jobId, {
@@ -123,7 +127,7 @@ export class ModelGenerationService {
 
       // 提交到Tripo AI
       const tripoResponse = await tripoAIClient.submitRequest(input, token);
-      
+
       if (!tripoResponse.success || !tripoResponse.jobId) {
         throw new ExternalServiceError('Tripo AI', '提交请求失败');
       }
@@ -137,10 +141,9 @@ export class ModelGenerationService {
 
       // 开始轮询Tripo AI状态
       this.startPolling(jobId, tripoResponse.jobId, token);
-
     } catch (error) {
       logger.error('Model generation failed:', error);
-      
+
       this.updateJobStatus(jobId, {
         status: 'failed',
         error: {
@@ -164,9 +167,9 @@ export class ModelGenerationService {
     const poll = async () => {
       try {
         const tripoStatus = await tripoAIClient.getJobStatus(tripoJobId, token);
-        
+
         // 更新进度
-        const progress = Math.min(20 + (tripoStatus.progress * 0.6), 80);
+        const progress = Math.min(20 + tripoStatus.progress * 0.6, 80);
         this.updateJobStatus(jobId, {
           progress,
           updatedAt: new Date(),
@@ -200,14 +203,14 @@ export class ModelGenerationService {
           // 继续轮询，使用指数退避
           retryCount++;
           const delay = Math.min(baseInterval * Math.pow(1.2, retryCount), 30000); // 最大30秒
-          
+
           const timeoutId = setTimeout(poll, delay);
           this.pollingIntervals.set(jobId, timeoutId);
         }
       } catch (error) {
         logger.error('Polling error:', error);
         retryCount++;
-        
+
         if (retryCount >= maxRetries) {
           this.updateJobStatus(jobId, {
             status: 'failed',
@@ -237,7 +240,7 @@ export class ModelGenerationService {
   private async downloadAndUploadModel(jobId: string, downloadUrl: string): Promise<void> {
     try {
       logger.info('Downloading model from Tripo AI:', { jobId, downloadUrl });
-      
+
       // 更新进度
       this.updateJobStatus(jobId, {
         progress: 85,
@@ -246,10 +249,10 @@ export class ModelGenerationService {
 
       // 从Tripo AI下载模型
       const modelBuffer = await tripoAIClient.downloadModel(downloadUrl);
-      
+
       // 上传到COS
       logger.info('Uploading model to COS:', { jobId, size: modelBuffer.length });
-      
+
       const uploadResult = await tencentCOSClient.uploadModel(
         modelBuffer,
         `model_${jobId}.obj`,
@@ -269,10 +272,9 @@ export class ModelGenerationService {
         jobId,
         cosUrl: uploadResult.Location,
       });
-
     } catch (error) {
       logger.error('Failed to download and upload model:', error);
-      
+
       this.updateJobStatus(jobId, {
         status: 'failed',
         error: {
@@ -293,7 +295,7 @@ export class ModelGenerationService {
     if (currentStatus) {
       const updatedStatus = { ...currentStatus, ...updates };
       this.jobs.set(jobId, updatedStatus);
-      
+
       // 如果作业完成或失败，清理轮询
       if (updates.status === 'completed' || updates.status === 'failed') {
         this.cleanupPolling(jobId);

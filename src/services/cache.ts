@@ -37,7 +37,7 @@ export class CacheService {
       this.isConnected = true;
     });
 
-    this.client.on('error', (error) => {
+    this.client.on('error', error => {
       logger.error('Redis client error:', error);
       this.isConnected = false;
     });
@@ -69,12 +69,12 @@ export class CacheService {
   async cacheJobStatus(jobId: string, status: JobStatus, ttl: number = 3600): Promise<void> {
     try {
       await this.ensureConnected();
-      
+
       const key = this.getJobStatusKey(jobId);
       const value = JSON.stringify(status);
-      
+
       await this.client.setEx(key, ttl, value);
-      
+
       logger.debug('Job status cached:', {
         jobId,
         status: status.status,
@@ -92,16 +92,16 @@ export class CacheService {
   async getCachedJobStatus(jobId: string): Promise<JobStatus | null> {
     try {
       await this.ensureConnected();
-      
+
       const key = this.getJobStatusKey(jobId);
       const value = await this.client.get(key);
-      
+
       if (!value) {
         return null;
       }
 
       const status = JSON.parse(value) as JobStatus;
-      
+
       // 转换日期字符串回Date对象
       status.createdAt = new Date(status.createdAt);
       status.updatedAt = new Date(status.updatedAt);
@@ -131,10 +131,10 @@ export class CacheService {
   async clearJobCache(jobId: string): Promise<void> {
     try {
       await this.ensureConnected();
-      
+
       const key = this.getJobStatusKey(jobId);
       await this.client.del(key);
-      
+
       logger.debug('Job cache cleared:', { jobId });
     } catch (error) {
       logger.error('Failed to clear job cache:', error);
@@ -148,15 +148,15 @@ export class CacheService {
   async set(key: string, value: any, ttl?: number): Promise<void> {
     try {
       await this.ensureConnected();
-      
+
       const serializedValue = JSON.stringify(value);
-      
+
       if (ttl) {
         await this.client.setEx(key, ttl, serializedValue);
       } else {
         await this.client.set(key, serializedValue);
       }
-      
+
       logger.debug('Cache set:', { key, ttl });
     } catch (error) {
       logger.error('Failed to set cache:', error);
@@ -170,9 +170,9 @@ export class CacheService {
   async get<T = any>(key: string): Promise<T | null> {
     try {
       await this.ensureConnected();
-      
+
       const value = await this.client.get(key);
-      
+
       if (!value) {
         return null;
       }
@@ -303,7 +303,7 @@ export class CacheService {
   private parseRedisInfo(info: string): any {
     const lines = info.split('\r\n');
     const result: any = {};
-    
+
     for (const line of lines) {
       if (line && !line.startsWith('#')) {
         const [key, value] = line.split(':');
@@ -312,7 +312,7 @@ export class CacheService {
         }
       }
     }
-    
+
     return result;
   }
 
@@ -332,12 +332,12 @@ export class CacheService {
   async mset(keyValues: Record<string, any>): Promise<void> {
     try {
       await this.ensureConnected();
-      
+
       const serializedKeyValues: Record<string, string> = {};
       for (const [key, value] of Object.entries(keyValues)) {
         serializedKeyValues[key] = JSON.stringify(value);
       }
-      
+
       await this.client.mSet(serializedKeyValues);
       logger.debug('Multiple cache values set:', { count: Object.keys(keyValues).length });
     } catch (error) {

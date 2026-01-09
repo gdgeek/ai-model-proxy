@@ -62,11 +62,13 @@ describe('CacheService', () => {
       const result = await cacheService.getCachedJobStatus('test-job-123');
 
       expect(mockRedisClient.get).toHaveBeenCalledWith('job:status:test-job-123');
-      expect(result).toEqual(expect.objectContaining({
-        jobId: 'test-job-123',
-        status: 'processing',
-        progress: 50,
-      }));
+      expect(result).toEqual(
+        expect.objectContaining({
+          jobId: 'test-job-123',
+          status: 'processing',
+          progress: 50,
+        })
+      );
       expect(result?.createdAt).toBeInstanceOf(Date);
       expect(result?.updatedAt).toBeInstanceOf(Date);
     });
@@ -103,11 +105,7 @@ describe('CacheService', () => {
 
       await cacheService.set('test-key', testData, 300);
 
-      expect(mockRedisClient.setEx).toHaveBeenCalledWith(
-        'test-key',
-        300,
-        JSON.stringify(testData)
-      );
+      expect(mockRedisClient.setEx).toHaveBeenCalledWith('test-key', 300, JSON.stringify(testData));
     });
 
     it('should set cache without TTL', async () => {
@@ -116,10 +114,7 @@ describe('CacheService', () => {
 
       await cacheService.set('test-key', testData);
 
-      expect(mockRedisClient.set).toHaveBeenCalledWith(
-        'test-key',
-        JSON.stringify(testData)
-      );
+      expect(mockRedisClient.set).toHaveBeenCalledWith('test-key', JSON.stringify(testData));
     });
 
     it('should get cached data', async () => {

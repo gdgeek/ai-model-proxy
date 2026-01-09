@@ -59,7 +59,7 @@ export const apiRateLimiter = rateLimit({
  */
 export const requestSizeLimit = (req: Request, res: Response, next: NextFunction): void => {
   const contentLength = req.get('content-length');
-  
+
   if (contentLength && parseInt(contentLength) > config.upload.maxFileSize) {
     logger.warn('Request size exceeded:', {
       contentLength,
@@ -92,7 +92,7 @@ export const securityHeaders = (_req: Request, res: Response, next: NextFunction
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
-  
+
   // 在生产环境中强制HTTPS
   if (config.server.env === 'production') {
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
@@ -107,7 +107,7 @@ export const securityHeaders = (_req: Request, res: Response, next: NextFunction
 export const ipWhitelist = (allowedIPs: string[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     const clientIP = req.ip || req.connection.remoteAddress || 'unknown';
-    
+
     // 在开发环境中跳过IP检查
     if (config.server.env === 'development') {
       return next();
@@ -161,12 +161,7 @@ export const validateRequest = (req: Request, res: Response, next: NextFunction)
   }
 
   // 检查可疑的User-Agent
-  const suspiciousPatterns = [
-    /bot/i,
-    /crawler/i,
-    /spider/i,
-    /scraper/i,
-  ];
+  const suspiciousPatterns = [/bot/i, /crawler/i, /spider/i, /scraper/i];
 
   const isSuspicious = suspiciousPatterns.some(pattern => pattern.test(userAgent));
   if (isSuspicious && config.server.env === 'production') {
@@ -194,7 +189,11 @@ export const validateRequest = (req: Request, res: Response, next: NextFunction)
 /**
  * CORS预检请求处理
  */
-export const handleCorsPreflightRequest = (req: Request, res: Response, next: NextFunction): void => {
+export const handleCorsPreflightRequest = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');

@@ -52,7 +52,7 @@ export class TencentCOSClient {
               resolve({
                 Location: data.Location,
                 Bucket: params.Bucket, // 使用参数中的Bucket
-                Key: params.Key,       // 使用参数中的Key
+                Key: params.Key, // 使用参数中的Key
                 ETag: data.ETag,
               });
             }
@@ -69,12 +69,16 @@ export class TencentCOSClient {
       return result;
     } catch (error: any) {
       logger.error('Failed to upload file to COS:', error);
-      
+
       if (error?.code === 'RequestTimeout') {
         throw new GatewayTimeoutError('COS上传超时');
       }
-      
-      throw new ExternalServiceError('Tencent COS', `文件上传失败: ${error?.message || '未知错误'}`, error);
+
+      throw new ExternalServiceError(
+        'Tencent COS',
+        `文件上传失败: ${error?.message || '未知错误'}`,
+        error
+      );
     }
   }
 
@@ -110,7 +114,11 @@ export class TencentCOSClient {
       return url;
     } catch (error: any) {
       logger.error('Failed to generate signed URL:', error);
-      throw new ExternalServiceError('Tencent COS', `生成预签名URL失败: ${error?.message || '未知错误'}`, error);
+      throw new ExternalServiceError(
+        'Tencent COS',
+        `生成预签名URL失败: ${error?.message || '未知错误'}`,
+        error
+      );
     }
   }
 
@@ -151,7 +159,11 @@ export class TencentCOSClient {
       return result;
     } catch (error: any) {
       logger.error('Failed to get object metadata from COS:', error);
-      throw new ExternalServiceError('Tencent COS', `获取对象元数据失败: ${error?.message || '未知错误'}`, error);
+      throw new ExternalServiceError(
+        'Tencent COS',
+        `获取对象元数据失败: ${error?.message || '未知错误'}`,
+        error
+      );
     }
   }
 
@@ -241,7 +253,7 @@ export class TencentCOSClient {
             Region: this.region,
             MaxKeys: 1,
           },
-          (err, _data) => {
+          err => {
             if (err) {
               reject(err);
             } else {
@@ -270,7 +282,7 @@ export class TencentCOSClient {
             Region: this.region,
             Key: key,
           },
-          (err, _data) => {
+          err => {
             if (err) {
               reject(err);
             } else {
@@ -283,7 +295,11 @@ export class TencentCOSClient {
       logger.info('Object deleted from COS:', { key });
     } catch (error: any) {
       logger.error('Failed to delete object from COS:', error);
-      throw new ExternalServiceError('Tencent COS', `删除对象失败: ${error?.message || '未知错误'}`, error);
+      throw new ExternalServiceError(
+        'Tencent COS',
+        `删除对象失败: ${error?.message || '未知错误'}`,
+        error
+      );
     }
   }
 

@@ -28,7 +28,7 @@ export class TripoAIClient {
 
     // 请求拦截器
     this.client.interceptors.request.use(
-      (config) => {
+      config => {
         logger.debug('Tripo AI request:', {
           method: config.method,
           url: config.url,
@@ -36,7 +36,7 @@ export class TripoAIClient {
         });
         return config;
       },
-      (error) => {
+      error => {
         logger.error('Tripo AI request error:', error);
         return Promise.reject(error);
       }
@@ -44,14 +44,14 @@ export class TripoAIClient {
 
     // 响应拦截器
     this.client.interceptors.response.use(
-      (response) => {
+      response => {
         logger.debug('Tripo AI response:', {
           status: response.status,
           data: response.data,
         });
         return response;
       },
-      (error) => {
+      error => {
         logger.error('Tripo AI response error:', {
           status: error.response?.status,
           data: error.response?.data,
@@ -69,7 +69,8 @@ export class TripoAIClient {
     try {
       const payload = {
         type: input.type,
-        data: input.type === 'text' ? input.data : Buffer.from(input.data as Buffer).toString('base64'),
+        data:
+          input.type === 'text' ? input.data : Buffer.from(input.data as Buffer).toString('base64'),
         options: input.options,
       };
 
@@ -88,15 +89,15 @@ export class TripoAIClient {
       };
     } catch (error) {
       logger.error('Failed to submit request to Tripo AI:', error);
-      
+
       if (axios.isAxiosError(error)) {
         if (error.code === 'ECONNABORTED') {
           throw new GatewayTimeoutError('Tripo AI请求超时');
         }
-        
+
         const status = error.response?.status;
         const message = error.response?.data?.message || error.message;
-        
+
         throw new ExternalServiceError('Tripo AI', `请求失败 (${status}): ${message}`, {
           status,
           data: error.response?.data,
@@ -121,7 +122,7 @@ export class TripoAIClient {
       );
 
       const data = response.data;
-      
+
       return {
         jobId: data.jobId,
         status: data.status,
@@ -131,26 +132,26 @@ export class TripoAIClient {
             downloadUrl: data.result.downloadUrl,
             thumbnailUrl: data.result.thumbnailUrl,
             metadata: data.result.metadata,
-          }
+          },
         }),
         ...(data.error && {
           error: {
             code: data.error.code,
             message: data.error.message,
-          }
+          },
         }),
       };
     } catch (error) {
       logger.error('Failed to get job status from Tripo AI:', error);
-      
+
       if (axios.isAxiosError(error)) {
         if (error.code === 'ECONNABORTED') {
           throw new GatewayTimeoutError('Tripo AI状态查询超时');
         }
-        
+
         const status = error.response?.status;
         const message = error.response?.data?.message || error.message;
-        
+
         throw new ExternalServiceError('Tripo AI', `状态查询失败 (${status}): ${message}`, {
           status,
           data: error.response?.data,
@@ -176,15 +177,15 @@ export class TripoAIClient {
       return Buffer.from(response.data);
     } catch (error) {
       logger.error('Failed to download model from Tripo AI:', error);
-      
+
       if (axios.isAxiosError(error)) {
         if (error.code === 'ECONNABORTED') {
           throw new GatewayTimeoutError('模型下载超时');
         }
-        
+
         const status = error.response?.status;
         const message = error.response?.data?.message || error.message;
-        
+
         throw new ExternalServiceError('Tripo AI', `模型下载失败 (${status}): ${message}`, {
           status,
           data: error.response?.data,
@@ -211,10 +212,10 @@ export class TripoAIClient {
 
       // 只对特定错误进行重试
       if (axios.isAxiosError(error)) {
-        const shouldRetry = 
+        const shouldRetry =
           error.code === 'ECONNABORTED' || // 超时
-          error.code === 'ECONNRESET' ||   // 连接重置
-          error.code === 'ENOTFOUND' ||    // DNS错误
+          error.code === 'ECONNRESET' || // 连接重置
+          error.code === 'ENOTFOUND' || // DNS错误
           (error.response?.status && error.response.status >= 500); // 服务器错误
 
         if (!shouldRetry) {
@@ -247,7 +248,7 @@ export class TripoAIClient {
       const response = await this.client.get('/health', {
         timeout: 5000, // 健康检查使用较短超时
       });
-      
+
       return response.status === 200;
     } catch (error) {
       logger.warn('Tripo AI健康检查失败:', error);

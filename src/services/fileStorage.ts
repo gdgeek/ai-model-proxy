@@ -67,7 +67,7 @@ export class FileStorageService {
       });
 
       const buffer = Buffer.from(response.data);
-      
+
       logger.info('File downloaded successfully:', {
         size: buffer.length,
         contentType: response.headers['content-type'],
@@ -76,12 +76,12 @@ export class FileStorageService {
       return buffer;
     } catch (error) {
       logger.error('Failed to download file from URL:', error);
-      
+
       if (axios.isAxiosError(error)) {
         if (error.code === 'ECONNABORTED') {
           throw new ExternalServiceError('Download', '文件下载超时');
         }
-        
+
         const status = error.response?.status;
         throw new ExternalServiceError('Download', `文件下载失败 (${status}): ${error.message}`);
       }
@@ -142,7 +142,7 @@ export class FileStorageService {
     try {
       // 基于文件头检测文件类型
       const fileSignature = this.getFileSignature(file);
-      
+
       if (expectedMimeType) {
         const detectedType = this.detectMimeTypeFromSignature(fileSignature);
         if (detectedType && detectedType !== expectedMimeType) {
@@ -181,7 +181,8 @@ export class FileStorageService {
     }
 
     // 检查文件名中的危险字符
-    const dangerousChars = /[<>:"/\\|?*\x00-\x1f]/;
+    // eslint-disable-next-line no-control-regex
+    const dangerousChars = /[<>:"/\\|?*\u0000-\u001f]/;
     if (dangerousChars.test(filename)) {
       throw new ValidationError('文件名包含非法字符');
     }
@@ -207,7 +208,7 @@ export class FileStorageService {
   private detectMimeTypeFromSignature(signature: string): string | null {
     // 常见文件类型的魔数
     const signatures: { [key: string]: string } = {
-      'ffd8ff': 'image/jpeg',
+      ffd8ff: 'image/jpeg',
       '89504e47': 'image/png',
       '52494646': 'image/webp', // RIFF (WebP容器)
       '474946': 'image/gif',
@@ -294,7 +295,7 @@ export class FileStorageService {
     files: Array<{ buffer: Buffer; filename: string; mimeType?: string }>
   ): Promise<UploadResult[]> {
     const results: UploadResult[] = [];
-    
+
     for (const file of files) {
       try {
         const result = await this.uploadToCOS(file.buffer, file.filename, {

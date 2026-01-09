@@ -13,11 +13,11 @@ export class GracefulShutdown {
    */
   registerServer(server: Server): void {
     this.server = server;
-    
+
     // 跟踪活跃连接
-    server.on('connection', (connection) => {
+    server.on('connection', connection => {
       this.activeConnections.add(connection);
-      
+
       connection.on('close', () => {
         this.activeConnections.delete(connection);
       });
@@ -39,9 +39,9 @@ export class GracefulShutdown {
     process.on('SIGTERM', () => this.handleShutdown('SIGTERM'));
     process.on('SIGINT', () => this.handleShutdown('SIGINT'));
     process.on('SIGUSR2', () => this.handleShutdown('SIGUSR2')); // nodemon重启
-    
+
     // 处理未捕获的异常
-    process.on('uncaughtException', (error) => {
+    process.on('uncaughtException', error => {
       logger.error('Uncaught Exception:', error);
       this.handleShutdown('uncaughtException');
     });
@@ -109,7 +109,7 @@ export class GracefulShutdown {
         return;
       }
 
-      this.server.close((error) => {
+      this.server.close(error => {
         if (error) {
           logger.error('Error closing HTTP server:', error);
           reject(error);
@@ -135,7 +135,7 @@ export class GracefulShutdown {
     const maxWaitTime = 10000; // 最多等待10秒
     const startTime = Date.now();
 
-    while (this.activeConnections.size > 0 && (Date.now() - startTime) < maxWaitTime) {
+    while (this.activeConnections.size > 0 && Date.now() - startTime < maxWaitTime) {
       await new Promise(resolve => setTimeout(resolve, 100));
     }
 

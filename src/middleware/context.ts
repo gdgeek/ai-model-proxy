@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { RequestContext } from '../types/express';
+import { logger } from '../utils/logger';
 
 // 添加请求上下文中间件
 export const addRequestContext = (req: Request, res: Response, next: NextFunction): void => {
@@ -29,15 +30,15 @@ export const addRequestContext = (req: Request, res: Response, next: NextFunctio
 // 请求日志中间件
 export const logRequest = (req: Request, res: Response, next: NextFunction): void => {
   const { context } = req;
-  
+
   if (context) {
     // 记录请求开始
-    console.log(`[${context.requestId}] ${req.method} ${req.path} - Start`);
-    
+    logger.info(`[${context.requestId}] ${req.method} ${req.path} - Start`);
+
     // 监听响应结束
     res.on('finish', () => {
       const duration = Date.now() - context.startTime;
-      console.log(
+      logger.info(
         `[${context.requestId}] ${req.method} ${req.path} - ${res.statusCode} (${duration}ms)`
       );
     });

@@ -73,7 +73,13 @@ export class TooManyRequestsError extends AppError {
 
 export class ExternalServiceError extends AppError {
   constructor(service: string, message: string, details?: any) {
-    super(`External service error (${service}): ${message}`, 502, 'EXTERNAL_SERVICE_ERROR', true, details);
+    super(
+      `External service error (${service}): ${message}`,
+      502,
+      'EXTERNAL_SERVICE_ERROR',
+      true,
+      details
+    );
   }
 }
 
@@ -119,4 +125,4 @@ export const ERROR_CODES = {
   JOB_FAILED: 'JOB_FAILED',
 } as const;
 
-export type ErrorCode = typeof ERROR_CODES[keyof typeof ERROR_CODES];
+export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];

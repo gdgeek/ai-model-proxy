@@ -1,4 +1,6 @@
 // 基础类型定义
+import { Request } from 'express';
+
 export type ModelInputType = 'image' | 'text';
 export type ModelStatus = 'pending' | 'processing' | 'completed' | 'failed';
 export type ModelFormat = 'obj' | 'fbx' | 'gltf';
@@ -215,7 +217,7 @@ export interface ValidationError {
   value?: any;
 }
 
-export interface RequestWithFile extends Express.Request {
+export interface RequestWithFile extends Request {
   file?: Express.Multer.File;
 }
 

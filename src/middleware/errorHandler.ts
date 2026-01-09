@@ -17,7 +17,7 @@ export const errorHandler = (
   }
 
   const requestId = req.requestId || 'unknown';
-  
+
   // 记录错误
   logger.error('Request error:', {
     requestId,
@@ -114,7 +114,7 @@ export const errorHandler = (
 // 404处理中间件
 export const notFoundHandler = (req: Request, res: Response): Response => {
   const requestId = req.requestId || 'unknown';
-  
+
   const errorResponse: ErrorResponse = {
     error: {
       code: 'NOT_FOUND',

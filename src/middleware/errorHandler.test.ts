@@ -60,9 +60,7 @@ describe('Error Handler Middleware', () => {
           message: '测试验证错误',
           timestamp: expect.any(String),
           requestId: 'test-request-id',
-          details: [
-            { field: 'email', message: '邮箱格式无效', value: 'invalid-email' },
-          ],
+          details: [{ field: 'email', message: '邮箱格式无效', value: 'invalid-email' }],
         },
       });
     });
@@ -158,7 +156,12 @@ describe('Error Handler Middleware', () => {
       mockResponse.headersSent = true;
       const error = new Error('测试错误');
 
-      const result = errorHandler(error, mockRequest as Request, mockResponse as Response, mockNext);
+      const result = errorHandler(
+        error,
+        mockRequest as Request,
+        mockResponse as Response,
+        mockNext
+      );
 
       expect(mockNext).toHaveBeenCalledWith(error);
       expect(result).toBeUndefined();
@@ -168,7 +171,12 @@ describe('Error Handler Middleware', () => {
       const mockReqWithoutId = { ...mockRequest, requestId: undefined };
       const error = new ValidationError('测试错误');
 
-      errorHandler(error, mockReqWithoutId as unknown as Request, mockResponse as Response, mockNext);
+      errorHandler(
+        error,
+        mockReqWithoutId as unknown as Request,
+        mockResponse as Response,
+        mockNext
+      );
 
       expect(mockResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({

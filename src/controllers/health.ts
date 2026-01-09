@@ -13,7 +13,7 @@ export class HealthController {
   async healthCheck(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const requestId = req.requestId || 'unknown';
-      
+
       logger.debug('Health check requested:', { requestId });
 
       // 基本健康检查
@@ -43,15 +43,15 @@ export class HealthController {
    * 就绪检查端点
    * GET /ready
    */
-  async readinessCheck(req: Request, res: Response, _next: NextFunction): Promise<void> {
+  async readinessCheck(req: Request, res: Response): Promise<void> {
     try {
       const requestId = req.requestId || 'unknown';
-      
+
       logger.debug('Readiness check requested:', { requestId });
 
       // 检查外部依赖
       const checks = await this.performDependencyChecks();
-      
+
       const allReady = Object.values(checks).every(check => check === true);
       const status = allReady ? 'ready' : 'not_ready';
 
@@ -95,12 +95,12 @@ export class HealthController {
   async detailedHealthCheck(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const requestId = req.requestId || 'unknown';
-      
+
       logger.debug('Detailed health check requested:', { requestId });
 
       // 检查外部依赖
       const dependencies = await this.performDependencyChecks();
-      
+
       const allHealthy = Object.values(dependencies).every(check => check === true);
       const status = allHealthy ? 'healthy' : 'unhealthy';
 
@@ -136,7 +136,7 @@ export class HealthController {
   async systemInfo(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const requestId = req.requestId || 'unknown';
-      
+
       logger.debug('System info requested:', { requestId });
 
       const memoryUsage = process.memoryUsage();
@@ -217,7 +217,7 @@ export class HealthController {
    */
   async livenessCheck(req: Request, res: Response): Promise<void> {
     const requestId = req.requestId || 'unknown';
-    
+
     logger.debug('Liveness check requested:', { requestId });
 
     // 简单的存活检查，只要进程在运行就返回成功
@@ -235,7 +235,7 @@ export class HealthController {
   async startupCheck(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const requestId = req.requestId || 'unknown';
-      
+
       logger.debug('Startup check requested:', { requestId });
 
       // 检查应用是否已完全启动

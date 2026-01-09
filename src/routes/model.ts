@@ -78,7 +78,12 @@ router.use(addRequestContext);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/', upload.single('image'), validateModelGenerationRequest, modelController.createModel.bind(modelController));
+router.post(
+  '/',
+  upload.single('image'),
+  validateModelGenerationRequest,
+  modelController.createModel.bind(modelController)
+);
 
 /**
  * @swagger

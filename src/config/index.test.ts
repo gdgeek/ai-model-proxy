@@ -41,11 +41,7 @@ describe('Configuration', () => {
 
     it('should have correct upload configuration', () => {
       expect(config.upload.maxFileSize).toBe(1048576); // 1MB for tests
-      expect(config.upload.allowedImageTypes).toEqual([
-        'image/jpeg',
-        'image/png',
-        'image/webp',
-      ]);
+      expect(config.upload.allowedImageTypes).toEqual(['image/jpeg', 'image/png', 'image/webp']);
     });
 
     it('should have correct logging configuration', () => {
