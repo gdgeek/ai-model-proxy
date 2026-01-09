@@ -188,17 +188,17 @@ jobs:
         # 这里可以添加性能测试脚本
         # 例如：artillery run performance-test.yml
 
-  # 通知
-  notify:
-    runs-on: ubuntu-latest
-    needs: [deploy-dev, deploy-prod]
-    if: always()
-    
-    steps:
-    - name: Notify deployment status
-      uses: 8398a7/action-slack@v3
-      with:
-        status: ${{ job.status }}
-        channel: '#deployments'
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  # 通知 (可选 - 需要配置 SLACK_WEBHOOK_URL)
+  # notify:
+  #   runs-on: ubuntu-latest
+  #   needs: [deploy-dev, deploy-prod]
+  #   if: always()
+  #   
+  #   steps:
+  #   - name: Notify deployment status
+  #     uses: 8398a7/action-slack@v3
+  #     with:
+  #       status: ${{ job.status }}
+  #       channel: '#deployments'
+  #     env:
+  #       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
