@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # AI模型代理服务 - 开发环境
+  ai-model-proxy-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: ai-model-proxy-dev
+    ports:
+      - "3000:3000"
+      - "9229:9229" # Node.js调试端口
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - HOST=0.0.0.0
+      - REDIS_HOST=redis-dev
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - REDIS_DB=0
+    depends_on:
+      - redis-dev
+    restart: unless-stopped
+    networks:
+      - ai-model-dev-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./logs:/app/logs
+    command: npm run dev
+
+  # Redis缓存服务 - 开发环境
+  redis-dev:
+    image: redis:7-alpine
+    container_name: ai-model-redis-dev
+    ports:
+      - "6380:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_dev_data:/data
+    restart: unless-stopped
+    networks:
+      - ai-model-dev-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+volumes:
+  redis_dev_data:
+    driver: local
+
+networks:
+  ai-model-dev-network:
+    driver: bridge
