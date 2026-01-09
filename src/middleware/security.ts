@@ -106,7 +106,7 @@ export const securityHeaders = (_req: Request, res: Response, next: NextFunction
  */
 export const ipWhitelist = (allowedIPs: string[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
-    const clientIP = req.ip || req.connection.remoteAddress || 'unknown';
+    const clientIP = req.ip || req.socket?.remoteAddress || 'unknown';
 
     // 在开发环境中跳过IP检查
     if (config.server.env === 'development') {

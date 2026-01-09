@@ -7,7 +7,7 @@ import { logger } from '../utils/logger';
 export const addRequestContext = (req: Request, res: Response, next: NextFunction): void => {
   const requestId = uuidv4();
   const startTime = Date.now();
-  const clientIp = req.ip || req.connection.remoteAddress || 'unknown';
+  const clientIp = req.ip || req.socket?.remoteAddress || 'unknown';
   const userAgent = req.get('User-Agent');
 
   const context: RequestContext = {
