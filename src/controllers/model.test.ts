@@ -75,12 +75,15 @@ describe('ModelController', () => {
       await controller.createModel(mockReq as Request, mockRes as Response, mockNext);
 
       expect(validateToken).toHaveBeenCalledWith('valid-token');
-      expect(modelGenerationService.submitGenerationRequest).toHaveBeenCalledWith({
-        type: 'image',
-        data: Buffer.from('test-image'),
-        filename: 'test.jpg',
-        mimeType: 'image/jpeg',
-      }, 'valid-token');
+      expect(modelGenerationService.submitGenerationRequest).toHaveBeenCalledWith(
+        {
+          type: 'image',
+          data: Buffer.from('test-image'),
+          filename: 'test.jpg',
+          mimeType: 'image/jpeg',
+        },
+        'valid-token'
+      );
       expect(mockRes.status).toHaveBeenCalledWith(201);
       expect(mockRes.json).toHaveBeenCalledWith({
         jobId: 'test-job-id',
@@ -105,10 +108,13 @@ describe('ModelController', () => {
 
       await controller.createModel(mockReq as Request, mockRes as Response, mockNext);
 
-      expect(modelGenerationService.submitGenerationRequest).toHaveBeenCalledWith({
-        type: 'text',
-        data: 'test text input',
-      }, 'valid-token');
+      expect(modelGenerationService.submitGenerationRequest).toHaveBeenCalledWith(
+        {
+          type: 'text',
+          data: 'test text input',
+        },
+        'valid-token'
+      );
       expect(mockRes.status).toHaveBeenCalledWith(201);
     });
 
@@ -172,11 +178,13 @@ describe('ModelController', () => {
 
       expect(validateJobId).toHaveBeenCalledWith('valid-job-id');
       expect(modelGenerationService.pollJobStatus).toHaveBeenCalledWith('valid-job-id');
-      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
-        jobId: 'valid-job-id',
-        status: 'processing',
-        message: expect.any(String),
-      }));
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          jobId: 'valid-job-id',
+          status: 'processing',
+          message: expect.any(String),
+        })
+      );
     });
 
     it('should reject invalid job ID format', async () => {
@@ -210,15 +218,17 @@ describe('ModelController', () => {
 
       expect(validateJobId).toHaveBeenCalledWith('completed-job-id');
       expect(modelGenerationService.pollJobStatus).toHaveBeenCalledWith('completed-job-id');
-      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
-        jobId: 'completed-job-id',
-        status: 'completed',
-        message: '模型生成已完成',
-        result: expect.objectContaining({
-          modelUrl: 'https://example.com/model.obj',
-          metadata: expect.any(Object),
-        }),
-      }));
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          jobId: 'completed-job-id',
+          status: 'completed',
+          message: '模型生成已完成',
+          result: expect.objectContaining({
+            modelUrl: 'https://example.com/model.obj',
+            metadata: expect.any(Object),
+          }),
+        })
+      );
     });
 
     it('should reject invalid job ID format', async () => {

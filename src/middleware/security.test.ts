@@ -101,8 +101,14 @@ describe('Security Middleware', () => {
       expect(mockRes.setHeader).toHaveBeenCalledWith('X-Content-Type-Options', 'nosniff');
       expect(mockRes.setHeader).toHaveBeenCalledWith('X-Frame-Options', 'DENY');
       expect(mockRes.setHeader).toHaveBeenCalledWith('X-XSS-Protection', '1; mode=block');
-      expect(mockRes.setHeader).toHaveBeenCalledWith('Referrer-Policy', 'strict-origin-when-cross-origin');
-      expect(mockRes.setHeader).toHaveBeenCalledWith('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+      expect(mockRes.setHeader).toHaveBeenCalledWith(
+        'Referrer-Policy',
+        'strict-origin-when-cross-origin'
+      );
+      expect(mockRes.setHeader).toHaveBeenCalledWith(
+        'Permissions-Policy',
+        'geolocation=(), microphone=(), camera=()'
+      );
       expect(mockNext).toHaveBeenCalled();
     });
 
@@ -112,7 +118,10 @@ describe('Security Middleware', () => {
 
       securityHeaders(mockReq as Request, mockRes as Response, mockNext);
 
-      expect(mockRes.setHeader).toHaveBeenCalledWith('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+      expect(mockRes.setHeader).toHaveBeenCalledWith(
+        'Strict-Transport-Security',
+        'max-age=31536000; includeSubDomains; preload'
+      );
       expect(mockNext).toHaveBeenCalled();
 
       // Reset to test environment
@@ -244,8 +253,14 @@ describe('Security Middleware', () => {
 
       handleCorsPreflightRequest(mockReq as Request, mockRes as Response, mockNext);
 
-      expect(mockRes.setHeader).toHaveBeenCalledWith('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-      expect(mockRes.setHeader).toHaveBeenCalledWith('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+      expect(mockRes.setHeader).toHaveBeenCalledWith(
+        'Access-Control-Allow-Methods',
+        'GET, POST, PUT, DELETE, OPTIONS'
+      );
+      expect(mockRes.setHeader).toHaveBeenCalledWith(
+        'Access-Control-Allow-Headers',
+        'Content-Type, Authorization, X-Requested-With'
+      );
       expect(mockRes.setHeader).toHaveBeenCalledWith('Access-Control-Max-Age', '86400');
       expect(mockRes.status).toHaveBeenCalledWith(204);
       expect(mockRes.end).toHaveBeenCalled();
