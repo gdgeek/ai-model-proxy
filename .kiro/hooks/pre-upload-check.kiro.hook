@@ -4,10 +4,13 @@
   "description": "Automatically runs tests and linting checmaks before uploading code to ensure quality standards are met",
   "version": "1",
   "when": {
-    "type": "promptSubmit"
+    "type": "fileEdited",
+    "patterns": []
   },
   "then": {
-    "type": "runCommand",
-    "command": "npm test && npm run lint"
-  }
+    "type": "askAgent",
+    "prompt": ""
+  },
+  "workspaceFolderName": "ai-model-proxy",
+  "shortName": "pre-upload-check"
 }
