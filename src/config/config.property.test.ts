@@ -176,13 +176,10 @@ describe('Property 8: 配置管理有效性', () => {
   describe('环境配置验证', () => {
     test('对于任何有效的环境值，应当接受', () => {
       fc.assert(
-        fc.property(
-          fc.constantFrom('development', 'production', 'test'),
-          nodeEnv => {
-            const result = validateConfig({ nodeEnv });
-            expect(result.valid).toBe(true);
-          }
-        ),
+        fc.property(fc.constantFrom('development', 'production', 'test'), nodeEnv => {
+          const result = validateConfig({ nodeEnv });
+          expect(result.valid).toBe(true);
+        }),
         { numRuns: 100 }
       );
     });
@@ -204,13 +201,10 @@ describe('Property 8: 配置管理有效性', () => {
   describe('URL配置验证', () => {
     test('对于任何有效的HTTP/HTTPS URL，应当接受', () => {
       fc.assert(
-        fc.property(
-          fc.webUrl({ validSchemes: ['http', 'https'] }),
-          url => {
-            const result = validateConfig({ tripoApiUrl: url });
-            expect(result.valid).toBe(true);
-          }
-        ),
+        fc.property(fc.webUrl({ validSchemes: ['http', 'https'] }), url => {
+          const result = validateConfig({ tripoApiUrl: url });
+          expect(result.valid).toBe(true);
+        }),
         { numRuns: 100 }
       );
     });
@@ -287,12 +281,7 @@ describe('Property 8: 配置管理有效性', () => {
     test('对于任何有效的Redis主机名，应当接受', () => {
       fc.assert(
         fc.property(
-          fc.oneof(
-            fc.constant('localhost'),
-            fc.constant('127.0.0.1'),
-            fc.domain(),
-            fc.ipV4()
-          ),
+          fc.oneof(fc.constant('localhost'), fc.constant('127.0.0.1'), fc.domain(), fc.ipV4()),
           host => {
             const result = validateConfig({ redisHost: host });
             expect(result.valid).toBe(true);
@@ -369,13 +358,10 @@ describe('Property 8: 配置管理有效性', () => {
   describe('日志配置验证', () => {
     test('对于任何有效的日志级别，应当接受', () => {
       fc.assert(
-        fc.property(
-          fc.constantFrom('error', 'warn', 'info', 'debug'),
-          level => {
-            const result = validateConfig({ logLevel: level });
-            expect(result.valid).toBe(true);
-          }
-        ),
+        fc.property(fc.constantFrom('error', 'warn', 'info', 'debug'), level => {
+          const result = validateConfig({ logLevel: level });
+          expect(result.valid).toBe(true);
+        }),
         { numRuns: 100 }
       );
     });
@@ -431,10 +417,10 @@ describe('Property 8: 配置管理有效性', () => {
             redisHost: fc.constantFrom('localhost', '127.0.0.1'),
             redisPort: fc.integer({ min: 1, max: 65535 }),
             maxFileSize: fc.integer({ min: 1, max: 50 * 1024 * 1024 }),
-            allowedImageTypes: fc.array(
-              fc.constantFrom('image/jpeg', 'image/png', 'image/webp'),
-              { minLength: 1, maxLength: 3 }
-            ),
+            allowedImageTypes: fc.array(fc.constantFrom('image/jpeg', 'image/png', 'image/webp'), {
+              minLength: 1,
+              maxLength: 3,
+            }),
             logLevel: fc.constantFrom('error', 'warn', 'info', 'debug'),
             corsOrigin: fc.string(),
             rateLimitWindowMs: fc.integer({ min: 1000, max: 3600000 }),

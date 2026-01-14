@@ -52,7 +52,7 @@ describe('Property 2: 支持的图片格式', () => {
 
     test('对于任何支持的文件扩展名，应当正确识别MIME类型', () => {
       const supportedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
-      
+
       fc.assert(
         fc.property(
           fc.constantFrom(...supportedExtensions),
@@ -60,7 +60,7 @@ describe('Property 2: 支持的图片格式', () => {
           (ext, basename) => {
             const filename = `${basename}.${ext}`;
             const mimeType = getMimeTypeFromExtension(filename);
-            
+
             expect(mimeType).not.toBeNull();
             expect(isSupportedImageFormat(mimeType!)).toBe(true);
           }
@@ -84,7 +84,7 @@ describe('Property 2: 支持的图片格式', () => {
                 .map((c, i) => (i % 2 === 0 ? c.toUpperCase() : c.toLowerCase()))
                 .join('');
             }
-            
+
             expect(isSupportedImageFormat(testMimeType)).toBe(true);
           }
         ),
@@ -105,7 +105,7 @@ describe('Property 2: 支持的图片格式', () => {
 
     test('对于任何不支持的文件扩展名，应当返回null或拒绝', () => {
       const unsupportedExtensions = ['gif', 'bmp', 'svg', 'tiff', 'pdf', 'txt', 'mp4'];
-      
+
       fc.assert(
         fc.property(
           fc.constantFrom(...unsupportedExtensions),
@@ -113,7 +113,7 @@ describe('Property 2: 支持的图片格式', () => {
           (ext, basename) => {
             const filename = `${basename}.${ext}`;
             const mimeType = getMimeTypeFromExtension(filename);
-            
+
             if (mimeType !== null) {
               expect(isSupportedImageFormat(mimeType)).toBe(false);
             }
@@ -160,12 +160,9 @@ describe('Property 2: 支持的图片格式', () => {
 
     test('对于任何超过限制的文件大小，应当拒绝', () => {
       fc.assert(
-        fc.property(
-          fc.integer({ min: MAX_FILE_SIZE + 1, max: MAX_FILE_SIZE * 10 }),
-          size => {
-            expect(isValidFileSize(size)).toBe(false);
-          }
-        ),
+        fc.property(fc.integer({ min: MAX_FILE_SIZE + 1, max: MAX_FILE_SIZE * 10 }), size => {
+          expect(isValidFileSize(size)).toBe(false);
+        }),
         { numRuns: 100 }
       );
     });
@@ -183,7 +180,7 @@ describe('Property 2: 支持的图片格式', () => {
   describe('组合验证', () => {
     test('对于任何支持格式且大小合法的文件，应当完全接受', () => {
       const MAX_FILE_SIZE = 10 * 1024 * 1024;
-      
+
       fc.assert(
         fc.property(
           fc.constantFrom(...supportedMimeTypes),
@@ -191,7 +188,7 @@ describe('Property 2: 支持的图片格式', () => {
           (mimeType, size) => {
             const formatValid = isSupportedImageFormat(mimeType);
             const sizeValid = size > 0 && size <= MAX_FILE_SIZE;
-            
+
             expect(formatValid && sizeValid).toBe(true);
           }
         ),
@@ -201,13 +198,10 @@ describe('Property 2: 支持的图片格式', () => {
 
     test('对于任何不支持格式或大小非法的文件，应当拒绝', () => {
       const MAX_FILE_SIZE = 10 * 1024 * 1024;
-      
+
       fc.assert(
         fc.property(
-          fc.oneof(
-            fc.constantFrom(...unsupportedMimeTypes),
-            fc.constantFrom(...supportedMimeTypes)
-          ),
+          fc.oneof(fc.constantFrom(...unsupportedMimeTypes), fc.constantFrom(...supportedMimeTypes)),
           fc.oneof(
             fc.integer({ max: 0 }),
             fc.integer({ min: MAX_FILE_SIZE + 1, max: MAX_FILE_SIZE * 10 }),
@@ -216,7 +210,7 @@ describe('Property 2: 支持的图片格式', () => {
           (mimeType, size) => {
             const formatValid = isSupportedImageFormat(mimeType);
             const sizeValid = size > 0 && size <= MAX_FILE_SIZE;
-            
+
             // 至少有一个条件不满足时应当拒绝
             if (!formatValid || !sizeValid) {
               expect(formatValid && sizeValid).toBe(false);
