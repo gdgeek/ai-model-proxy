@@ -201,7 +201,10 @@ describe('Property 2: 支持的图片格式', () => {
 
       fc.assert(
         fc.property(
-          fc.oneof(fc.constantFrom(...unsupportedMimeTypes), fc.constantFrom(...supportedMimeTypes)),
+          fc.oneof(
+            fc.constantFrom(...unsupportedMimeTypes),
+            fc.constantFrom(...supportedMimeTypes)
+          ),
           fc.oneof(
             fc.integer({ max: 0 }),
             fc.integer({ min: MAX_FILE_SIZE + 1, max: MAX_FILE_SIZE * 10 }),
