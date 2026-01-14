@@ -59,7 +59,11 @@ describe('Property 8: 配置管理有效性', () => {
     // API URL验证
     if (config.tripoApiUrl !== undefined) {
       try {
-        new URL(config.tripoApiUrl);
+        const url = new URL(config.tripoApiUrl);
+        // 只接受 http 和 https 协议
+        if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+          errors.push('TripoApiUrl must use http or https protocol');
+        }
       } catch {
         errors.push('TripoApiUrl must be a valid URL');
       }
