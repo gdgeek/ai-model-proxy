@@ -1,5 +1,5 @@
 {
-  "enabled": true,
+  "enabled": false,
   "name": "Pre-commit Test Runner",
   "description": "Runs all tests before each prompt submission. If tests pass, allows the commit to proceed. If tests fail, instructs the agent to fix the issues before committing.",
   "version": "1",

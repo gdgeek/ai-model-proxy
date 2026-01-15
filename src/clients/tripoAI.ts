@@ -70,6 +70,7 @@ export class TripoAIClient {
       // 构建符合 Tripo AI v2 API 的请求格式
       const payload: any = {
         type: input.type === 'text' ? 'text_to_model' : 'image_to_model',
+        format: 'glb', // 强制使用 GLB 格式
       };
 
       if (input.type === 'text') {
