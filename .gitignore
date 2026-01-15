@@ -40,6 +40,5 @@ temp/
 # Docker
 .dockerignore
 
-# 其他
-*.tgz
-*.tar.gz
+# 添加到 .gitignore
+.env.local.private

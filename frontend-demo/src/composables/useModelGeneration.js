@@ -1,6 +1,10 @@
 import { ref, reactive } from 'vue'
 import axios from 'axios'
 
+// 配置 API 基础 URL
+const API_BASE_URL = window.__API_BASE_URL__ || 'http://localhost:3000'
+axios.defaults.baseURL = API_BASE_URL
+
 export function useModelGeneration() {
   const loading = ref(false)
   const error = ref('')

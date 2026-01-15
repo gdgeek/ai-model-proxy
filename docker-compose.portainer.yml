@@ -1,0 +1,122 @@
+version: '3.8'
+
+services:
+  # 后端 API 服务
+  ai-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-model-api
+    ports:
+      - "3000:3000"  # Portainer 可以管理端口映射
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOST=0.0.0.0
+      - REDIS_HOST=db
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - REDIS_DB=0
+      # Tripo AI 配置 - 在 Portainer 中设置环境变量
+      - TRIPO_API_URL=https://api.tripo3d.ai
+      - TRIPO_API_TOKEN=${TRIPO_API_TOKEN}
+      - TRIPO_API_TIMEOUT=30000
+      - TRIPO_MAX_RETRIES=3
+      - TRIPO_RETRY_DELAY=1000
+      # 腾讯云 COS 配置 - 在 Portainer 中设置环境变量
+      - TENCENT_COS_SECRET_ID=${TENCENT_COS_SECRET_ID}
+      - TENCENT_COS_SECRET_KEY=${TENCENT_COS_SECRET_KEY}
+      - TENCENT_COS_REGION=${TENCENT_COS_REGION}
+      - TENCENT_COS_BUCKET=${TENCENT_COS_BUCKET}
+      # 日志配置
+      - LOG_LEVEL=info
+      - LOG_FORMAT=json
+      # 安全配置
+      - CORS_ORIGIN=*
+      - RATE_LIMIT_WINDOW_MS=900000
+      - RATE_LIMIT_MAX_REQUESTS=100
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - ai-model-network
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+
+  # 前端 Web 服务
+  ai-web:
+    build:
+      context: ./frontend-demo
+      dockerfile: Dockerfile.prod
+    container_name: ai-model-web
+    ports:
+      - "5173:80"  # 生产环境使用 Nginx 静态服务
+    environment:
+      - VITE_API_BASE_URL=http://ai-api:3000
+    depends_on:
+      ai-api:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - ai-model-network
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.25'
+
+  # Redis 数据库
+  db:
+    image: redis:7-alpine
+    container_name: ai-model-redis
+    ports:
+      - "6379:6379"  # 可选：如果需要外部访问 Redis
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - ai-model-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+volumes:
+  redis_data:
+    driver: local
+
+networks:
+  ai-model-network:
+    driver: bridge
+    # 不设置 internal: true，允许 Portainer 管理网络访问
