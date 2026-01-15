@@ -125,8 +125,8 @@ export const validateToken = (token: string): boolean => {
     return false;
   }
 
-  // 检查是否包含有效字符（字母、数字、连字符、下划线、点）
-  const tokenRegex = /^[a-zA-Z0-9._-]+$/;
+  // 检查是否包含有效字符（字母、数字、连字符、下划线）
+  const tokenRegex = /^[a-zA-Z0-9_-]+$/;
   return tokenRegex.test(token);
 };
 
