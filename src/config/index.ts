@@ -42,6 +42,7 @@ const configSchema = Joi.object({
   CORS_ORIGIN: Joi.string().default('*'),
   RATE_LIMIT_WINDOW_MS: Joi.number().default(900000), // 15分钟
   RATE_LIMIT_MAX_REQUESTS: Joi.number().default(100),
+  API_KEY: Joi.string().optional(), // API 密钥（可选）
 });
 
 // 验证环境变量
@@ -92,6 +93,7 @@ export const config = {
     corsOrigin: envVars.CORS_ORIGIN,
     rateLimitWindowMs: envVars.RATE_LIMIT_WINDOW_MS,
     rateLimitMaxRequests: envVars.RATE_LIMIT_MAX_REQUESTS,
+    apiKey: envVars.API_KEY,
   },
 };
 

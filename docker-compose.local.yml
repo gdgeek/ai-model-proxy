@@ -33,6 +33,7 @@ services:
       - LOG_FORMAT=simple
       # 安全配置
       - CORS_ORIGIN=http://web:5173
+      - API_KEY=${API_KEY}
     depends_on:
       db:
         condition: service_healthy

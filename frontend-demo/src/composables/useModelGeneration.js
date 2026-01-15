@@ -17,7 +17,7 @@ export function useModelGeneration() {
   })
 
   // 创建文本到3D模型任务
-  const createTextModel = async (description, token, quality = 'high') => {
+  const createTextModel = async (description, tripoToken, apiKey = null) => {
     try {
       loading.value = true
       error.value = ''
@@ -25,14 +25,21 @@ export function useModelGeneration() {
       const formData = new FormData()
       formData.append('type', 'text')
       formData.append('input', description)
-      formData.append('token', token)
-      formData.append('options[quality]', quality)
+      formData.append('token', tripoToken)
+      formData.append('options[quality]', 'high')
 
-      const response = await axios.post('/api/v1/models', formData, {
+      const config = {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
-      })
+      }
+
+      // 如果提供了 API Key，添加到请求头
+      if (apiKey) {
+        config.headers['X-API-Key'] = apiKey
+      }
+
+      const response = await axios.post('/api/v1/models', formData, config)
 
       currentJob.jobId = response.data.jobId
       currentJob.status = response.data.status
@@ -47,7 +54,7 @@ export function useModelGeneration() {
   }
 
   // 创建图片到3D模型任务
-  const createImageModel = async (imageFile, token, quality = 'high') => {
+  const createImageModel = async (imageFile, tripoToken, apiKey = null) => {
     try {
       loading.value = true
       error.value = ''
@@ -55,14 +62,21 @@ export function useModelGeneration() {
       const formData = new FormData()
       formData.append('type', 'image')
       formData.append('input', imageFile)
-      formData.append('token', token)
-      formData.append('options[quality]', quality)
+      formData.append('token', tripoToken)
+      formData.append('options[quality]', 'high')
 
-      const response = await axios.post('/api/v1/models', formData, {
+      const config = {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
-      })
+      }
+
+      // 如果提供了 API Key，添加到请求头
+      if (apiKey) {
+        config.headers['X-API-Key'] = apiKey
+      }
+
+      const response = await axios.post('/api/v1/models', formData, config)
 
       currentJob.jobId = response.data.jobId
       currentJob.status = response.data.status

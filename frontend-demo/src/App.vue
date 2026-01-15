@@ -29,9 +29,18 @@
         <h3 style="margin-bottom: 20px;">📝 文本到 3D 模型</h3>
         
         <div class="input-group">
-          <label>API Token</label>
+          <label>API 密钥 (可选)</label>
           <input 
-            v-model="textForm.token" 
+            v-model="textForm.apiKey" 
+            type="password" 
+            placeholder="输入后端 API 密钥 (如果后端启用了认证)"
+          />
+        </div>
+
+        <div class="input-group">
+          <label>Tripo AI Token</label>
+          <input 
+            v-model="textForm.tripoToken" 
             type="password" 
             placeholder="输入你的 Tripo AI Token"
           />
@@ -57,7 +66,7 @@
 
         <button 
           @click="generateFromText" 
-          :disabled="loading || !textForm.description.trim() || !textForm.token.trim()"
+          :disabled="loading || !textForm.description.trim() || !textForm.tripoToken.trim()"
           class="btn btn-primary"
           style="width: 100%;"
         >
@@ -71,9 +80,18 @@
         <h3 style="margin-bottom: 20px;">🖼️ 图片到 3D 模型</h3>
         
         <div class="input-group">
-          <label>API Token</label>
+          <label>API 密钥 (可选)</label>
           <input 
-            v-model="imageForm.token" 
+            v-model="imageForm.apiKey" 
+            type="password" 
+            placeholder="输入后端 API 密钥 (如果后端启用了认证)"
+          />
+        </div>
+
+        <div class="input-group">
+          <label>Tripo AI Token</label>
+          <input 
+            v-model="imageForm.tripoToken" 
             type="password" 
             placeholder="输入你的 Tripo AI Token"
           />
@@ -105,7 +123,7 @@
 
         <button 
           @click="generateFromImage" 
-          :disabled="loading || !imageForm.file || !imageForm.token.trim()"
+          :disabled="loading || !imageForm.file || !imageForm.tripoToken.trim()"
           class="btn btn-primary"
           style="width: 100%;"
         >
@@ -187,13 +205,15 @@ const {
 
 // 表单数据
 const textForm = reactive({
-  token: '',
+  apiKey: '',
+  tripoToken: '',
   description: '',
   quality: 'high'
 })
 
 const imageForm = reactive({
-  token: '',
+  apiKey: '',
+  tripoToken: '',
   file: null,
   quality: 'high'
 })
@@ -218,7 +238,7 @@ const handleFileSelect = (event) => {
 // 从文本生成3D模型
 const generateFromText = async () => {
   try {
-    await createTextModel(textForm.description, textForm.token, textForm.quality)
+    await createTextModel(textForm.description, textForm.tripoToken, textForm.apiKey)
     await waitForCompletion(currentJob.jobId)
   } catch (err) {
     console.error('生成失败:', err)
@@ -228,7 +248,7 @@ const generateFromText = async () => {
 // 从图片生成3D模型
 const generateFromImage = async () => {
   try {
-    await createImageModel(imageForm.file, imageForm.token, imageForm.quality)
+    await createImageModel(imageForm.file, imageForm.tripoToken, imageForm.apiKey)
     await waitForCompletion(currentJob.jobId)
   } catch (err) {
     console.error('生成失败:', err)

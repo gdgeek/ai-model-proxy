@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { modelController } from '../controllers/model';
 import { validateModelGenerationRequest, upload } from '../middleware/validation';
 import { addRequestContext } from '../middleware/context';
+import { apiKeyAuth, optionalAuth } from '../middleware/auth';
 
 const router = Router();
 
@@ -80,6 +81,7 @@ router.use(addRequestContext);
  */
 router.post(
   '/',
+  apiKeyAuth, // 需要认证
   upload.single('image'),
   validateModelGenerationRequest,
   modelController.createModel.bind(modelController)
@@ -120,7 +122,7 @@ router.post(
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/:jobId/status', modelController.getModelStatus.bind(modelController));
+router.get('/:jobId/status', optionalAuth, modelController.getModelStatus.bind(modelController));
 
 /**
  * @swagger
@@ -157,7 +159,7 @@ router.get('/:jobId/status', modelController.getModelStatus.bind(modelController
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/:jobId/result', modelController.getModelResult.bind(modelController));
+router.get('/:jobId/result', optionalAuth, modelController.getModelResult.bind(modelController));
 
 /**
  * @swagger
@@ -203,6 +205,6 @@ router.get('/:jobId/result', modelController.getModelResult.bind(modelController
  *                         format: date-time
  *                         nullable: true
  */
-router.get('/debug/jobs', modelController.getAllJobs.bind(modelController));
+router.get('/debug/jobs', apiKeyAuth, modelController.getAllJobs.bind(modelController));
 
 export { router as modelRoutes };
