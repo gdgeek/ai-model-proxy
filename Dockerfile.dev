@@ -1,5 +1,5 @@
 # 开发环境Dockerfile
-FROM node:18-alpine
+FROM node:22-alpine
 
 # 安装开发工具
 RUN apk add --no-cache git
