@@ -39,6 +39,10 @@ COPY --from=builder /app/dist ./dist
 # 复制其他必要文件
 COPY --chown=nodejs:nodejs .env.example .env
 
+# 创建logs目录并设置权限
+RUN mkdir -p logs && \
+    chown -R nodejs:nodejs logs
+
 # 设置环境变量
 ENV NODE_ENV=production
 ENV PORT=3000
