@@ -233,7 +233,7 @@ curl -X POST http://localhost:3000/api/v1/models \
    - ✅ 下载 URL 提取修复（使用 `pbr_model` 字段）
 
 2. **Token 认证成功**
-   - ✅ Token `[TRIPO_AI_TOKEN]` 有效
+   - ✅ Token 有效
    - ✅ 账户已充值，有足够积分
    - ✅ 认证通过，可以创建和完成任务
 
