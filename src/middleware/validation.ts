@@ -19,7 +19,7 @@ const modelGenerationSchema = Joi.object({
   token: Joi.string().min(10).required(),
   options: Joi.object({
     quality: Joi.string().valid('low', 'medium', 'high').optional(),
-    format: Joi.string().valid('obj', 'fbx', 'gltf').optional(),
+    format: Joi.string().valid('obj', 'fbx', 'gltf', 'glb').optional(),
     timeout: Joi.number().min(1000).max(300000).optional(), // 1秒到5分钟
   }).optional(),
 });
@@ -71,6 +71,15 @@ export const validateModelGenerationRequest = (
   next: NextFunction
 ): void => {
   try {
+    // 如果 options 是字符串，尝试解析为 JSON
+    if (req.body.options && typeof req.body.options === 'string') {
+      try {
+        req.body.options = JSON.parse(req.body.options);
+      } catch (e) {
+        throw new ValidationError('options 必须是有效的 JSON 对象');
+      }
+    }
+
     const { error, value } = modelGenerationSchema.validate(req.body, {
       abortEarly: false,
       stripUnknown: true,

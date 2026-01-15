@@ -12,7 +12,11 @@ export class ModelGenerationService {
   /**
    * 提交模型生成请求
    */
-  async submitGenerationRequest(input: ModelInput, token: string): Promise<JobResponse> {
+  async submitGenerationRequest(
+    input: ModelInput,
+    token: string,
+    options?: { quality?: string; format?: string; timeout?: number }
+  ): Promise<JobResponse> {
     try {
       const jobId = uuidv4();
 
@@ -20,6 +24,7 @@ export class ModelGenerationService {
         jobId,
         type: input.type,
         filename: input.filename,
+        options,
       });
 
       // 创建初始作业状态
@@ -38,13 +43,13 @@ export class ModelGenerationService {
         type: input.type,
         data: input.data,
         options: {
-          quality: 'medium', // 默认质量
-          format: 'obj', // 默认格式
+          quality: (options?.quality as any) || 'medium', // 默认质量
+          format: (options?.format as any) || 'obj', // 默认格式
         },
       };
 
       // 异步处理模型生成
-      this.processModelGenerationAsync(jobId, tripoInput, token);
+      this.processModelGenerationAsync(jobId, tripoInput, token, options?.format || 'obj');
 
       return {
         jobId,
@@ -115,7 +120,8 @@ export class ModelGenerationService {
   private async processModelGenerationAsync(
     jobId: string,
     input: TripoInput,
-    token: string
+    token: string,
+    format: string = 'obj'
   ): Promise<void> {
     try {
       // 更新状态为处理中
@@ -140,7 +146,7 @@ export class ModelGenerationService {
       });
 
       // 开始轮询Tripo AI状态
-      this.startPolling(jobId, tripoResponse.jobId, token);
+      this.startPolling(jobId, tripoResponse.jobId, token, format);
     } catch (error) {
       logger.error('Model generation failed:', error);
 
@@ -159,7 +165,7 @@ export class ModelGenerationService {
   /**
    * 开始轮询Tripo AI状态
    */
-  private startPolling(jobId: string, tripoJobId: string, token: string): void {
+  private startPolling(jobId: string, tripoJobId: string, token: string, format: string = 'obj'): void {
     let retryCount = 0;
     const maxRetries = 60; // 最多轮询60次（5分钟）
     const baseInterval = 5000; // 基础间隔5秒
@@ -177,7 +183,7 @@ export class ModelGenerationService {
 
         if (tripoStatus.status === 'completed' && tripoStatus.result) {
           // 下载并上传模型
-          await this.downloadAndUploadModel(jobId, tripoStatus.result.downloadUrl);
+          await this.downloadAndUploadModel(jobId, tripoStatus.result.downloadUrl, format);
         } else if (tripoStatus.status === 'failed') {
           this.updateJobStatus(jobId, {
             status: 'failed',
@@ -237,9 +243,9 @@ export class ModelGenerationService {
   /**
    * 下载并上传模型到COS
    */
-  private async downloadAndUploadModel(jobId: string, downloadUrl: string): Promise<void> {
+  private async downloadAndUploadModel(jobId: string, downloadUrl: string, format: string = 'obj'): Promise<void> {
     try {
-      logger.info('Downloading model from Tripo AI:', { jobId, downloadUrl });
+      logger.info('Downloading model from Tripo AI:', { jobId, downloadUrl, format });
 
       // 更新进度
       this.updateJobStatus(jobId, {
@@ -250,12 +256,15 @@ export class ModelGenerationService {
       // 从Tripo AI下载模型
       const modelBuffer = await tripoAIClient.downloadModel(downloadUrl);
 
+      // 确定文件扩展名
+      const fileExtension = format === 'gltf' ? 'glb' : format;
+
       // 上传到COS
-      logger.info('Uploading model to COS:', { jobId, size: modelBuffer.length });
+      logger.info('Uploading model to COS:', { jobId, size: modelBuffer.length, format: fileExtension });
 
       const uploadResult = await tencentCOSClient.uploadModel(
         modelBuffer,
-        `model_${jobId}.obj`,
+        `model_${jobId}.${fileExtension}`,
         'application/octet-stream'
       );
 

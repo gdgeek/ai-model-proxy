@@ -4,7 +4,7 @@ import { Request } from 'express';
 
 export type ModelInputType = 'image' | 'text';
 export type ModelStatus = 'pending' | 'processing' | 'completed' | 'failed';
-export type ModelFormat = 'obj' | 'fbx' | 'gltf';
+export type ModelFormat = 'obj' | 'fbx' | 'gltf' | 'glb';
 export type QualityLevel = 'low' | 'medium' | 'high';
 
 // 请求和响应模型

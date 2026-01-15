@@ -12,7 +12,7 @@ export class ModelController {
    */
   async createModel(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { type, input: textInput, token } = req.body;
+      const { type, input: textInput, token, options } = req.body;
       const requestId = req.requestId || 'unknown';
 
       logger.info('Creating model generation request:', {
@@ -20,6 +20,7 @@ export class ModelController {
         type,
         hasFile: !!req.file,
         hasTextInput: !!textInput,
+        options,
       });
 
       // 验证令牌
@@ -55,7 +56,11 @@ export class ModelController {
       }
 
       // 提交生成请求
-      const jobResponse = await modelGenerationService.submitGenerationRequest(modelInput, token);
+      const jobResponse = await modelGenerationService.submitGenerationRequest(
+        modelInput,
+        token,
+        options
+      );
 
       // 构建响应
       const response: ModelGenerationResponse = {
