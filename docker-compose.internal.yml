@@ -1,0 +1,114 @@
+version: '3.8'
+
+services:
+  # AI模型代理服务 - 内部网络版本
+  ai-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-model-proxy-internal
+    # 注意：不暴露端口到宿主机，只在内部网络中可访问
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOST=0.0.0.0
+      - REDIS_HOST=db
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - REDIS_DB=0
+      # Tripo AI 配置
+      - TRIPO_API_URL=https://api.tripo3d.ai
+      - TRIPO_API_TOKEN=${TRIPO_API_TOKEN}
+      - TRIPO_API_TIMEOUT=30000
+      - TRIPO_MAX_RETRIES=3
+      - TRIPO_RETRY_DELAY=1000
+      # 腾讯云 COS 配置
+      - TENCENT_COS_SECRET_ID=${TENCENT_COS_SECRET_ID}
+      - TENCENT_COS_SECRET_KEY=${TENCENT_COS_SECRET_KEY}
+      - TENCENT_COS_REGION=${TENCENT_COS_REGION}
+      - TENCENT_COS_BUCKET=${TENCENT_COS_BUCKET}
+      # 安全配置
+      - CORS_ORIGIN=*
+      - RATE_LIMIT_WINDOW_MS=900000
+      - RATE_LIMIT_MAX_REQUESTS=100
+      # 日志配置
+      - LOG_LEVEL=info
+      - LOG_FORMAT=json
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - ai-model-internal-network
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+
+  # Redis缓存服务
+  db:
+    image: redis:7-alpine
+    container_name: ai-model-redis-internal
+    # 注意：不暴露端口到宿主机
+    expose:
+      - "6379"
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - ai-model-internal-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Nginx 反向代理 - 可选，用于内部负载均衡
+  proxy:
+    image: nginx:alpine
+    container_name: ai-model-nginx-internal
+    # 只暴露到内部网络，如果需要外部访问可以取消注释下面的 ports
+    # ports:
+    #   - "80:80"
+    expose:
+      - "80"
+    volumes:
+      - ./nginx-internal.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - ai-api
+    restart: unless-stopped
+    networks:
+      - ai-model-internal-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  redis_data:
+    driver: local
+
+networks:
+  ai-model-internal-network:
+    driver: bridge
+    internal: true  # 关键：设置为内部网络，不允许外部访问
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
