@@ -12,16 +12,16 @@ const configSchema = Joi.object({
   NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
 
   // Tripo AI 配置
-  TRIPO_API_URL: Joi.string().uri().required(),
+  TRIPO_API_URL: Joi.string().uri().default('https://api.tripo3d.ai'),
   TRIPO_API_TIMEOUT: Joi.number().default(30000),
   TRIPO_MAX_RETRIES: Joi.number().default(3),
   TRIPO_RETRY_DELAY: Joi.number().default(1000),
 
   // 腾讯云 COS 配置
-  TENCENT_COS_SECRET_ID: Joi.string().required(),
-  TENCENT_COS_SECRET_KEY: Joi.string().required(),
-  TENCENT_COS_REGION: Joi.string().required(),
-  TENCENT_COS_BUCKET: Joi.string().required(),
+  TENCENT_COS_SECRET_ID: Joi.string().default(''),
+  TENCENT_COS_SECRET_KEY: Joi.string().default(''),
+  TENCENT_COS_REGION: Joi.string().default('ap-beijing'),
+  TENCENT_COS_BUCKET: Joi.string().default(''),
 
   // Redis 配置
   REDIS_HOST: Joi.string().default('localhost'),
