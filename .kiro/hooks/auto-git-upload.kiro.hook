@@ -1,5 +1,5 @@
 {
-  "enabled": true,
+  "enabled": false,
   "name": "Auto Git Upload",
   "description": "Automatically uploads code to git repository when tests pass",
   "version": "1",

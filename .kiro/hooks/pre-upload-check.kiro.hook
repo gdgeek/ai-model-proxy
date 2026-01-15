@@ -1,15 +1,15 @@
 {
-  "enabled": true,
+  "enabled": false,
   "name": "Pre-upload Test & Lint Check",
-  "description": "Automatically runs tests and linting checmaks before uploading code to ensure quality standards are met",
+  "description": "Automatically runs tests and linting checks before uploading code to ensure quality standards are met",
   "version": "1",
   "when": {
     "type": "fileEdited",
-    "patterns": []
+    "patterns": ["**/*.ts", "**/*.js", "**/*.json"]
   },
   "then": {
     "type": "askAgent",
-    "prompt": ""
+    "prompt": "Please run tests and linting checks to ensure code quality before any commits or uploads."
   },
   "workspaceFolderName": "ai-model-proxy",
   "shortName": "pre-upload-check"
