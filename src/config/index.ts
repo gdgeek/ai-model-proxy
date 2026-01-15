@@ -13,6 +13,7 @@ const configSchema = Joi.object({
 
   // Tripo AI 配置
   TRIPO_API_URL: Joi.string().uri().default('https://api.tripo3d.ai'),
+  TRIPO_API_TOKEN: Joi.string().default(''),
   TRIPO_API_TIMEOUT: Joi.number().default(30000),
   TRIPO_MAX_RETRIES: Joi.number().default(3),
   TRIPO_RETRY_DELAY: Joi.number().default(1000),
@@ -62,6 +63,7 @@ export const config = {
   },
   tripo: {
     apiUrl: envVars.TRIPO_API_URL,
+    apiToken: envVars.TRIPO_API_TOKEN,
     timeout: envVars.TRIPO_API_TIMEOUT,
     maxRetries: envVars.TRIPO_MAX_RETRIES,
     retryDelay: envVars.TRIPO_RETRY_DELAY,
